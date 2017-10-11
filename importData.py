@@ -60,17 +60,21 @@ def getImages(vector,l,b,y):
 	plt.show()
 features,outputs=converttoVector(training_path)
 #getImages(features,32,32,outputs)
-nb=NBClassifier(0.01)
+def findError(X,y,label,nbc):
+	c_out=[]
+	for test in X:
+		c_out+=[[nb.predict(test)]]
+	df=pd.DataFrame()
+	df['Actual']=y.astype(int).ravel()
+	df['Predicted']=np.array(c_out,dtype=np.int16).ravel()
+	df['Error']=df['Actual']-df['Predicted']
+	total_error=(df['Error']!=0).sum()
+	df.to_csv(desktop_path+"/"+label+".csv")
+	#percentage_error=total_error/(df.count+1)
+	print("The "+label+" error is "+str(total_error*100/y.shape[0])+" percent.")
+
+nb=NBClassifier(0.0001)
 nb.fit(features,outputs)
 test_feature,test_output=converttoVector(testing_path)
-c_out=[]
-for test in test_feature:
-	c_out+=[[nb.predict(test)]]
-df=pd.DataFrame()
-df['Actual']=test_output.astype(int).ravel()
-df['Predicted']=np.array(c_out,dtype=np.int16).ravel()
-df['Error']=df['Actual']-df['Predicted']
-total_error=(df['Error']!=0).sum()
-df.to_csv(desktop_path+"/Test_output.csv")
-#percentage_error=total_error/(df.count+1)
-print(total_error)
+findError(features,outputs,"Training",nb)
+findError(test_feature,test_output,"Testing",nb)
