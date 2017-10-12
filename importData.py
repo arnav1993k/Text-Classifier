@@ -4,9 +4,11 @@ import numpy as np
 from matplotlib import pyplot as plt
 from NBC import NBClassifier
 import pandas as pd
+import sklearn.metrics as metrics
+from sklearn import preprocessing, cross_validation, neighbors
 desktop_path=os.path.join(os.path.expanduser('~'), 'Desktop')
 training_path=desktop_path+"/trainingDigits"
-testing_path=desktop_path+"/testingDigits"
+testing_path=desktop_path+"/testDigits"
 def get_files(path):
 	all_files=os.listdir(path)
 	return all_files
@@ -26,7 +28,7 @@ def converttoArray(filename,location):
 				i+=1
 	return X,y
 def converttoVector(location):
-	files=get_files(training_path)
+	files=get_files(location)
 	print(str(len(files)) + " have been read from " + location)
 	features=[]
 	outputs=[]
@@ -64,16 +66,19 @@ def findError(X,y,label,nbc):
 	c_out=[]
 	for test in X:
 		c_out+=[[nb.predict(test)]]
-	df=pd.DataFrame()
-	df['Actual']=y.astype(int).ravel()
-	df['Predicted']=np.array(c_out,dtype=np.int16).ravel()
-	df['Error']=df['Actual']-df['Predicted']
-	total_error=(df['Error']!=0).sum()
-	df.to_csv(desktop_path+"/"+label+".csv")
+	# df=pd.DataFrame()
+	# df['Actual']=y.astype(int).ravel()
+	# df['Predicted']=np.array(c_out,dtype=np.int16).ravel()
+	# df['Error']=df['Actual']-df['Predicted']
+	# total_error=(df['Error']!=0).sum()
+	# df.to_csv(desktop_path+"/"+label+".csv")
 	#percentage_error=total_error/(df.count+1)
-	print("The "+label+" error is "+str(total_error*100/y.shape[0])+" percent.")
+	y=y.astype(int).ravel()
+	c=np.array(c_out,dtype=np.int16).ravel()
+	accuracy_score=metrics.accuracy_score(y,c)
+	print("The "+label+" error is "+str(accuracy_score)+" percent.")
 
-nb=NBClassifier(0.0001)
+nb=NBClassifier(0.000001)
 nb.fit(features,outputs)
 test_feature,test_output=converttoVector(testing_path)
 findError(features,outputs,"Training",nb)

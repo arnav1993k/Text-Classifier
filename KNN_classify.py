@@ -4,9 +4,11 @@ import numpy as np
 from matplotlib import pyplot as plt
 from KNN import KNN
 import pandas as pd
+import sklearn.metrics as metrics
+from sklearn import preprocessing, cross_validation, neighbors
 desktop_path=os.path.join(os.path.expanduser('~'), 'Desktop')
 training_path=desktop_path+"/trainingDigits"
-testing_path=desktop_path+"/testingDigits"
+testing_path=desktop_path+"/testDigits"
 def get_files(path):
 	all_files=os.listdir(path)
 	return all_files
@@ -26,7 +28,7 @@ def converttoArray(filename,location):
 				i+=1
 	return X,y
 def converttoVector(location):
-	files=get_files(training_path)
+	files=get_files(location)
 	print(str(len(files)) + " have been read from " + location)
 	features=[]
 	outputs=[]
@@ -60,20 +62,38 @@ def getImages(vector,l,b,y):
 	plt.show()
 features,outputs=converttoVector(training_path)
 #getImages(features,32,32,outputs)
-def findError(X,y,x_test,y_test,label,knn):
+def findError(X,y,x_test,y_test,label,knn,k):
 	c_out=[]
+	classifier=neighbors.KNeighborsClassifier(n_neighbors=k)
+	classifier.fit(X,y.ravel())
+	score=classifier.score(x_test,y_test.ravel())
 	for test in x_test:
-		c_out+=[[knn.predict(X,y,x_test,1)]]
-	df=pd.DataFrame()
-	df['Actual']=y_test.astype(int).ravel()
-	df['Predicted']=np.array(c_out,dtype=np.int16).ravel()
-	df['Error']=df['Actual']-df['Predicted']
-	total_error=(df['Error']!=0).sum()
-	df.to_csv(desktop_path+"/"+label+".csv")
-	#percentage_error=total_error/(df.count+1)
-	print("The "+label+" error is "+str(total_error*100/y.shape[0])+" percent.")
+		c_out+=[knn.predict(X,y,test,k)]
+	# df=pd.DataFrame()
+	# df['Actual']=y_test.astype(int).ravel()
+	# df['Predicted']=np.array(c_out,dtype=np.int16).ravel()
+	# df['Error']=df['Actual']-df['Predicted']
+	# total_error=(df['Error']!=0).sum()
+	#df.to_csv(desktop_path+"/"+label+"_knn.csv")
+	y_test=y_test.astype(int).ravel()
+	c=np.array(c_out,dtype=np.int16).ravel()
+	total_accuracy=metrics.accuracy_score(y_test,c)
 
+	print(total_accuracy,score)
+	#percentage_error=total_error/y_test.shape[0]
+	#print("The "+label+" error is "+str()+" percent.")
+	return total_accuracy
 knn=KNN()
 test_feature,test_output=converttoVector(testing_path)
-findError(features,outputs,features,outputs,"Training",knn)
-findError(features,outputs,test_feature,test_output,"Testing",nb)
+errors_train=[]
+errors_test=[]
+
+
+for i in range(1,11):
+	errors_train+=[findError(features,outputs,features[0:100,:],outputs[0:100],"Training",knn,i)]
+	errors_test+=[findError(features,outputs,test_feature[0:100,:],test_output[0:100],"Testing",knn,i)]
+print(errors_train)
+print(errors_test)
+plt.plot(errors_train)
+plt.plot(errors_test)
+plt.show()

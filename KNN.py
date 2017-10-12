@@ -7,7 +7,7 @@ class KNN:
 	def __euclidean_distance(self,A,B):
 		return np.sqrt(np.sum(np.square(A-B)))
 	#Function for prediction
-	def predict(self,X,y,x_test,k):
+	def get_distances(self,X,y,x_test):
 		distance=[]
 		classes=Counter()
 		#calculate and store ditances of all the points from given test data
@@ -17,11 +17,18 @@ class KNN:
 		#sort the distances
 		distance=sorted(distance)
 		#print(distance)
+		return distance
+	def get_classes(self,distances,y,k):
+		classes=Counter()
 		for i in range(k):
-			index=distance[i][1]
+			index=distances[i][1]
 			classes[y[index][0]]+=1
+		#print(classes)
+		return classes
+	def predict(self,X,y,x_test,k):
+		distance=self.get_distances(X,y,x_test)
+		classes=self.get_classes(distance,y,k)
 		return classes.most_common(1)[0][0]
-
 # def main():
 # 	knn=KNN()
 # 	X=[[1,1,0,0],[1,0,0,0],[0,1,0,1],[1,0,0,0],[0,0,1,0]]
