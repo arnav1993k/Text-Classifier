@@ -32,22 +32,22 @@ def main():
 	util=Utilities()
 	features,outputs=util.converttoVector(training_path)
 	test_feature,test_output=util.converttoVector(testing_path)
-	# nb=NBClassifier(0.000001)
-	# nb.fit(features,outputs)
+	nb=NBClassifier(0.000001)
+	nb.fit(features,outputs)
 
-	# findError(features,outputs,"Training",nb)
-	# findError(test_feature,test_output,"Testing",nb)
-	accuracy_score=[]
-	for k in range(1000,1003):
-		gnb=Gaussian_NBC()
-		pca=PCA(n_components=k)
-		X=pca.fit_transform(features)
-		gnb.fit(X,outputs)
-		X_test=np.matmul(test_feature,np.transpose(pca.components_))
-		accuracy_score+=[findError(X_test,test_output,"Testing",gnb)]
+	findError(features,outputs,"Training",nb)
+	findError(test_feature,test_output,"Testing",nb)
+	# accuracy_score=[]
+	# for k in range(1000,1003):
+	# 	gnb=Gaussian_NBC()
+	# 	pca=PCA(n_components=k)
+	# 	X=pca.fit_transform(features)
+	# 	gnb.fit(X,outputs)
+	# 	X_test=np.matmul(test_feature,np.transpose(pca.components_))
+	# 	accuracy_score+=[findError(X_test,test_output,"Testing",gnb)]
 
-	plt.plot(accuracy_score)
-	plt.show()
+	# plt.plot(accuracy_score)
+	# plt.show()
 #main
 if __name__ == '__main__':
 	main()

@@ -27,7 +27,7 @@ def findError(X,y,x_test,y_test,label,knn,k):
 	#print(total_accuracy,score)
 	#percentage_error=total_error/y_test.shape[0]
 	#print("The "+label+" error is "+str()+" percent.")
-	return total_accuracy
+	return total_accuracy*100
 def main():
 	desktop_path=os.path.join(os.path.expanduser('~'), 'Desktop')
 	training_path=desktop_path+"/trainingDigits"
@@ -35,17 +35,24 @@ def main():
 	util=Utilities()
 	features,outputs=util.converttoVector(training_path)
 	test_feature,test_output=util.converttoVector(testing_path)
-	knn=KNN()
-	errors_train=[]
-	errors_test=[]
+	# knn=KNN()
+	# errors_train=[]
+	# errors_test=[]
 
-	for i in range(1,11):
-		errors_train+=[findError(features,outputs,features,outputs,"Training",knn,i)]
-		errors_test+=[findError(features,outputs,test_feature,test_output,"Testing",knn,i)]
-	print(errors_train)
-	print(errors_test)
-	plt.plot(errors_train)
-	plt.plot(errors_test)
+	for i in range(1,5):
+		# errors_train+=[findError(features,outputs,features,outputs,"Training",knn,i)]
+		# errors_test+=[findError(features,outputs,test_feature,test_output,"Testing",knn,i)]
+		print("Testing for k="+str(i))
+		accuracy_score=[]
+		for k in range(6,100):
+			print("Testing for n="+str(k))
+			knn=KNN()
+			pca=PCA(n_components=k)
+			X=pca.fit_transform(features)
+			X_test=np.matmul(test_feature,np.transpose(pca.components_))
+			accuracy_score+=[findError(features,outputs,test_feature,test_output,"Testing",knn,i)]
+		print(accuracy_score)
+		plt.plot(accuracy_score)
 	plt.show()
 #main
 if __name__ == '__main__':
